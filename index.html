@@ -112,11 +112,12 @@
         let oscillator = null;
         let gainNode = null;
         
-        // Data: Multipliers array. Index 1 = 1st harmonic. Initial value is 1.0.
+        // Data: Multipliers array. Index 1 = 1st harmonic. Initial value is 1.0 for fundamental, 0.0 for others.
         // Background calculation uses (1/n) * multipliers[n]
         const multipliers = new Float32Array(MAX_HARMONIC + 1);
-        for (let i = 1; i <= MAX_HARMONIC; i++) {
-            multipliers[i] = 1.0;
+        multipliers[1] = 1.0; // 基音のみ1.0でスタート
+        for (let i = 2; i <= MAX_HARMONIC; i++) {
+            multipliers[i] = 0.0; // 他の倍音は0.0でスタート
         }
 
         // The specific harmonics the user wants to manipulate
@@ -349,16 +350,17 @@
 
         // Reset Button Logic
         resetBtn.addEventListener('click', () => {
-            // 1. 内部の倍率データをすべて1.0にリセット
-            for (let i = 1; i <= MAX_HARMONIC; i++) {
-                multipliers[i] = 1.0;
+            // 1. 内部の倍率データを初期状態（基音1.0、それ以外0.0）にリセット
+            multipliers[1] = 1.0;
+            for (let i = 2; i <= MAX_HARMONIC; i++) {
+                multipliers[i] = 0.0;
             }
             
-            // 2. UIの入力フィールドの表示を1.0に更新
+            // 2. UIの入力フィールドの表示を更新
             visibleHarmonics.forEach(i => {
                 const inputEl = document.getElementById(`harmonic-${i}`);
                 if (inputEl) {
-                    inputEl.value = "1.0";
+                    inputEl.value = multipliers[i].toFixed(1);
                 }
             });
             
